@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reaktion | Browser Game</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="top-bar">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <div>
+          <p class="brand-title">Reaktion</p>
+          <p class="brand-sub">Premium Reflex Game</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="soundToggle" aria-pressed="true">🔊</button>
+        <button class="icon-btn" id="themeToggle" aria-pressed="false">🌙</button>
+        <button class="icon-btn" id="debugToggle" aria-pressed="false">🐞</button>
+      </div>
+    </header>
+
+    <main class="screen-container">
+      <section class="screen active" id="screenStart" aria-labelledby="startTitle">
+        <div class="card hero">
+          <h1 id="startTitle">Reaktionsspiel</h1>
+          <p>
+            Triff so viele Ziele wie möglich. Je schneller du klickst, desto höher der Bonus.
+            Achte auf Spezialziele und halte deine Combo am Leben.
+          </p>
+          <div class="hero-actions">
+            <button class="primary" id="startButton">Spiel starten</button>
+            <button class="ghost" id="settingsButton">Einstellungen</button>
+            <button class="ghost" id="highscoreButton">Highscores</button>
+          </div>
+          <div class="hero-hints">
+            <span>Steuerung: Maus klickt Ziele · Space pausiert/fortsetzen · R Neustart · Esc Menü</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screenCountdown" aria-live="assertive">
+        <div class="countdown" id="countdown">3</div>
+      </section>
+
+      <section class="screen" id="screenGame" aria-label="Spielbereich">
+        <div class="hud">
+          <div class="hud-block">
+            <p>Punkte</p>
+            <strong id="score">0</strong>
+          </div>
+          <div class="hud-block">
+            <p>Combo</p>
+            <strong id="combo">x1</strong>
+          </div>
+          <div class="hud-block">
+            <p>Zeit</p>
+            <strong id="timeLeft">60</strong>
+          </div>
+          <div class="hud-block">
+            <p>Ø Reaktion</p>
+            <strong id="avgReaction">–</strong>
+          </div>
+          <div class="hud-block">
+            <p>Letzte Reaktion</p>
+            <strong id="lastReaction">–</strong>
+          </div>
+        </div>
+
+        <div class="play-area" id="playArea" role="application" aria-label="Spielfeld">
+          <div class="play-area-overlay" id="playAreaOverlay">
+            <p>Space drücken um fortzusetzen</p>
+          </div>
+        </div>
+
+        <div class="hud secondary">
+          <div class="hud-block">
+            <p>Hits</p>
+            <strong id="hits">0</strong>
+          </div>
+          <div class="hud-block">
+            <p>Misses</p>
+            <strong id="misses">0</strong>
+          </div>
+          <div class="hud-block">
+            <p>Beste Reaktion</p>
+            <strong id="bestReaction">–</strong>
+          </div>
+          <div class="hud-block">
+            <p>Modus</p>
+            <strong id="modeLabel">Normal · 60s</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screenSettings" aria-labelledby="settingsTitle">
+        <div class="card">
+          <h2 id="settingsTitle">Einstellungen</h2>
+          <div class="settings-grid">
+            <label class="setting">
+              <span>Rundendauer</span>
+              <div class="segmented" role="group" aria-label="Rundendauer">
+                <button data-round="30">30s</button>
+                <button data-round="60" class="active">60s</button>
+                <button data-round="90">90s</button>
+              </div>
+            </label>
+            <label class="setting">
+              <span>Schwierigkeit</span>
+              <div class="segmented" role="group" aria-label="Schwierigkeit">
+                <button data-difficulty="easy">Easy</button>
+                <button data-difficulty="normal" class="active">Normal</button>
+                <button data-difficulty="hard">Hard</button>
+              </div>
+            </label>
+            <label class="setting">
+              <span>Zielgröße</span>
+              <div class="segmented" role="group" aria-label="Zielgröße">
+                <button data-size="small">Klein</button>
+                <button data-size="medium" class="active">Normal</button>
+                <button data-size="large">Groß</button>
+              </div>
+            </label>
+            <label class="setting toggle">
+              <span>Sound</span>
+              <input type="checkbox" id="soundSetting" checked />
+              <span class="switch"></span>
+            </label>
+            <label class="setting toggle">
+              <span>Dark Mode</span>
+              <input type="checkbox" id="darkSetting" />
+              <span class="switch"></span>
+            </label>
+            <label class="setting toggle">
+              <span>Zen Mode</span>
+              <input type="checkbox" id="zenSetting" />
+              <span class="switch"></span>
+            </label>
+            <label class="setting toggle">
+              <span>Debug Mode</span>
+              <input type="checkbox" id="debugSetting" />
+              <span class="switch"></span>
+            </label>
+          </div>
+          <div class="modal-actions">
+            <button class="ghost" id="settingsBack">Zurück</button>
+            <button class="primary" id="settingsSave">Speichern</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screenHighscores" aria-labelledby="highscoreTitle">
+        <div class="card">
+          <h2 id="highscoreTitle">Highscores</h2>
+          <div class="highscore-list" id="highscoreList"></div>
+          <div class="modal-actions">
+            <button class="ghost" id="highscoreBack">Zurück</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screenResults" aria-labelledby="resultsTitle">
+        <div class="card results">
+          <h2 id="resultsTitle">Runde beendet</h2>
+          <div class="results-grid">
+            <div>
+              <p>Score</p>
+              <strong id="finalScore">0</strong>
+            </div>
+            <div>
+              <p>Hits</p>
+              <strong id="finalHits">0</strong>
+            </div>
+            <div>
+              <p>Misses</p>
+              <strong id="finalMisses">0</strong>
+            </div>
+            <div>
+              <p>Ø Reaktion</p>
+              <strong id="finalAverage">–</strong>
+            </div>
+            <div>
+              <p>Beste Reaktion</p>
+              <strong id="finalBest">–</strong>
+            </div>
+            <div>
+              <p>Combo Max</p>
+              <strong id="finalCombo">x1</strong>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="ghost" id="resultsMenu">Menü</button>
+            <button class="primary" id="resultsRestart">Nochmal spielen</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screenPause" aria-labelledby="pauseTitle">
+        <div class="card">
+          <h2 id="pauseTitle">Pause</h2>
+          <p>Eine kurze Verschnaufpause. Drücke Space zum Fortsetzen.</p>
+          <div class="modal-actions">
+            <button class="ghost" id="pauseMenu">Menü</button>
+            <button class="primary" id="pauseResume">Weiter</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Reaktion · 2024</span>
+      <span>Alles lokal, keine externen Assets</span>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
