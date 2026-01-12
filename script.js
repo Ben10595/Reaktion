@@ -31,7 +31,7 @@
     size: "medium",
     targetShape: "circle",
     sound: true,
-    dark: false,
+    dark: true,
     zen: false,
     debug: false,
     running: false,
@@ -48,6 +48,7 @@
     activeTarget: null,
     spawnTimeout: null,
     roundInterval: null,
+    roundStartedAt: null,
   };
 
   const elements = {
@@ -212,6 +213,11 @@
   };
 
   const registerMiss = () => {
+    if (!state.running || state.paused) return;
+    if (state.targetShape === "circle") {
+      endGame();
+      return;
+    }
     state.misses += 1;
     state.combo = 1;
     if (!state.zen) {
@@ -242,7 +248,8 @@
       threshold += entry.chance;
       return rand <= threshold;
     }) || CONFIG.targetTypes[0];
-    const shape = CONFIG.shapes[Math.floor(Math.random() * CONFIG.shapes.length)];
+    const availableShapes = getAvailableShapes();
+    const shape = availableShapes[Math.floor(Math.random() * availableShapes.length)];
     const color = CONFIG.colors[Math.floor(Math.random() * CONFIG.colors.length)];
     return { ...typeData, shape, color };
   };
@@ -295,6 +302,7 @@
     elements.playArea.appendChild(target);
 
     const difficultyConfig = CONFIG.difficulties[state.difficulty];
+    const lifespan = getTargetLifespan(difficultyConfig.lifespan);
     const timeoutId = setTimeout(() => {
       if (target.isConnected) {
         target.remove();
@@ -304,7 +312,7 @@
         }
         scheduleNextSpawn();
       }
-    }, difficultyConfig.lifespan);
+    }, lifespan);
 
     state.activeTarget = {
       element: target,
@@ -317,7 +325,7 @@
   const scheduleNextSpawn = () => {
     if (!state.running || state.paused) return;
     clearTimeout(state.spawnTimeout);
-    const gap = CONFIG.difficulties[state.difficulty].spawnGap;
+    const gap = getSpawnGap(CONFIG.difficulties[state.difficulty].spawnGap);
     const jitter = Math.random() * 140;
     state.spawnTimeout = setTimeout(spawnTarget, gap + jitter);
   };
@@ -349,6 +357,7 @@
     state.bestReaction = null;
     state.lastReaction = null;
     state.timeLeft = state.round;
+    state.roundStartedAt = null;
     updateHud();
   };
 
@@ -371,6 +380,7 @@
           switchScreen("game");
           state.running = true;
           state.paused = false;
+          state.roundStartedAt = performance.now();
           updateHud();
           startRoundTimer();
           spawnTarget();
@@ -480,6 +490,36 @@
   const getModeLabel = () => {
     const shapeLabel = getShapeLabel(state.targetShape);
     return `${capitalize(state.difficulty)} · ${state.round}s · Ziel: ${shapeLabel}${state.zen ? " · Zen" : ""}`;
+  };
+
+  const getProgress = () => {
+    if (!state.roundStartedAt) return 0;
+    const elapsed = performance.now() - state.roundStartedAt;
+    const total = state.round * 1000;
+    return Math.min(1, Math.max(0, elapsed / total));
+  };
+
+  const getAvailableShapes = () => {
+    const progress = getProgress();
+    let shapes = CONFIG.shapes;
+    if (progress < 0.35) {
+      shapes = ["circle"];
+    } else if (progress < 0.7) {
+      shapes = ["circle", "square"];
+    }
+    return Array.from(new Set([...shapes, state.targetShape]));
+  };
+
+  const getSpawnGap = (baseGap) => {
+    const progress = getProgress();
+    const minGap = Math.max(260, baseGap * 0.55);
+    return baseGap - (baseGap - minGap) * progress;
+  };
+
+  const getTargetLifespan = (baseLifespan) => {
+    const progress = getProgress();
+    const minLifespan = Math.max(360, baseLifespan * 0.65);
+    return baseLifespan - (baseLifespan - minLifespan) * progress;
   };
 
   const bindSettingsControls = () => {
