@@ -16,6 +16,8 @@
       { type: "golden", chance: 0.14, scoreMultiplier: 1.6 },
       { type: "fake", chance: 0.08, scoreMultiplier: -0.8 },
     ],
+    shapes: ["circle", "triangle", "square"],
+    colors: ["red", "blue", "yellow"],
     comboLimit: 6,
     bonusWindow: 450,
     missTimePenalty: 2,
@@ -27,6 +29,7 @@
     round: 60,
     difficulty: "normal",
     size: "medium",
+    targetShape: "circle",
     sound: true,
     dark: false,
     zen: false,
@@ -153,7 +156,7 @@
     elements.hits.textContent = state.hits;
     elements.misses.textContent = state.misses;
     elements.bestReaction.textContent = state.bestReaction ? formatTime(state.bestReaction) : "–";
-    elements.modeLabel.textContent = `${capitalize(state.difficulty)} · ${state.round}s${state.zen ? " · Zen" : ""}`;
+    elements.modeLabel.textContent = getModeLabel();
   };
 
   const updateResults = () => {
@@ -235,10 +238,13 @@
   const pickTargetType = () => {
     const rand = Math.random();
     let threshold = 0;
-    return CONFIG.targetTypes.find((entry) => {
+    const typeData = CONFIG.targetTypes.find((entry) => {
       threshold += entry.chance;
       return rand <= threshold;
     }) || CONFIG.targetTypes[0];
+    const shape = CONFIG.shapes[Math.floor(Math.random() * CONFIG.shapes.length)];
+    const color = CONFIG.colors[Math.floor(Math.random() * CONFIG.colors.length)];
+    return { ...typeData, shape, color };
   };
 
   const spawnTarget = () => {
@@ -250,15 +256,17 @@
     const x = Math.random() * Math.max(0, maxX);
     const y = Math.random() * Math.max(0, maxY);
     const typeData = pickTargetType();
+    const shapeLabel = getShapeLabel(typeData.shape);
+    const colorLabel = getColorLabel(typeData.color);
 
     const target = document.createElement("button");
     target.type = "button";
-    target.className = `target ${typeData.type}`;
+    target.className = `target ${typeData.type} shape-${typeData.shape} color-${typeData.color}`;
     target.style.width = `${size}px`;
     target.style.height = `${size}px`;
     target.style.left = `${x}px`;
     target.style.top = `${y}px`;
-    target.setAttribute("aria-label", `Ziel ${typeData.type}`);
+    target.setAttribute("aria-label", `Ziel ${shapeLabel} ${colorLabel}`);
 
     const spawnTime = performance.now();
 
@@ -268,7 +276,9 @@
       clearTimeout(state.activeTarget?.timeoutId);
       target.remove();
       state.activeTarget = null;
-      if (typeData.type === "fake") {
+      if (typeData.shape !== state.targetShape) {
+        registerMiss();
+      } else if (typeData.type === "fake") {
         registerMiss();
       } else {
         registerHit({
@@ -289,7 +299,9 @@
       if (target.isConnected) {
         target.remove();
         state.activeTarget = null;
-        registerMiss();
+        if (typeData.shape === state.targetShape && typeData.type !== "fake") {
+          registerMiss();
+        }
         scheduleNextSpawn();
       }
     }, difficultyConfig.lifespan);
@@ -401,7 +413,7 @@
       misses: state.misses,
       avgReaction: formatAverage(state.reactionTimes),
       bestReaction: state.bestReaction ? formatTime(state.bestReaction) : "–",
-      mode: `${capitalize(state.difficulty)} · ${state.round}s${state.zen ? " · Zen" : ""}`,
+      mode: getModeLabel(),
       date: new Date().toLocaleDateString("de-DE"),
     };
     list.unshift(entry);
@@ -447,6 +459,29 @@
 
   const capitalize = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 
+  const getShapeLabel = (shape) => {
+    const labels = {
+      circle: "Kreis",
+      triangle: "Dreieck",
+      square: "Quadrat",
+    };
+    return labels[shape] || capitalize(shape);
+  };
+
+  const getColorLabel = (color) => {
+    const labels = {
+      red: "Rot",
+      blue: "Blau",
+      yellow: "Gelb",
+    };
+    return labels[color] || capitalize(color);
+  };
+
+  const getModeLabel = () => {
+    const shapeLabel = getShapeLabel(state.targetShape);
+    return `${capitalize(state.difficulty)} · ${state.round}s · Ziel: ${shapeLabel}${state.zen ? " · Zen" : ""}`;
+  };
+
   const bindSettingsControls = () => {
     document.querySelectorAll("[data-round]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -468,6 +503,14 @@
       button.addEventListener("click", () => {
         state.size = button.dataset.size;
         document.querySelectorAll("[data-size]").forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
+      });
+    });
+
+    document.querySelectorAll("[data-shape]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.targetShape = button.dataset.shape;
+        document.querySelectorAll("[data-shape]").forEach((btn) => btn.classList.remove("active"));
         button.classList.add("active");
       });
     });
