@@ -265,12 +265,27 @@ button:hover {
   cursor: pointer;
   transform: scale(0.6);
   animation: pop 0.18s ease-out forwards;
+  border: 2px solid rgba(255, 255, 255, 0.4);
   background: radial-gradient(
     circle at top,
     var(--target-color-start, #818cf8),
     var(--target-color-end, #4f46e5)
   );
-  box-shadow: 0 12px 30px var(--target-glow, rgba(79, 70, 229, 0.35));
+  box-shadow:
+    0 16px 30px rgba(15, 23, 42, 0.25),
+    inset 0 0 0 1px rgba(15, 23, 42, 0.2);
+  transition: transform 0.12s ease, box-shadow 0.2s ease;
+}
+
+.target:hover {
+  transform: scale(1.04);
+  box-shadow:
+    0 18px 36px rgba(15, 23, 42, 0.35),
+    inset 0 0 0 1px rgba(15, 23, 42, 0.25);
+}
+
+.target:active {
+  transform: scale(0.96);
 }
 
 .target.normal {
@@ -286,31 +301,42 @@ button:hover {
 }
 
 .target.color-red {
-  --target-color-start: #fca5a5;
+  --target-color-start: #fecaca;
   --target-color-end: #ef4444;
 }
 
 .target.color-blue {
-  --target-color-start: #93c5fd;
+  --target-color-start: #bfdbfe;
   --target-color-end: #2563eb;
 }
 
 .target.color-yellow {
-  --target-color-start: #fde68a;
+  --target-color-start: #fef3c7;
   --target-color-end: #f59e0b;
 }
 
 .target.shape-circle {
   border-radius: 50%;
+  box-shadow:
+    0 16px 30px rgba(15, 23, 42, 0.22),
+    0 0 18px var(--target-glow, rgba(79, 70, 229, 0.35)),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.28);
 }
 
 .target.shape-square {
-  border-radius: 8px;
+  border-radius: 16px;
+  box-shadow:
+    0 16px 30px rgba(15, 23, 42, 0.24),
+    0 0 14px var(--target-glow, rgba(79, 70, 229, 0.35)),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.26);
 }
 
 .target.shape-triangle {
   border-radius: 0;
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  box-shadow:
+    0 16px 30px rgba(15, 23, 42, 0.22),
+    0 0 14px var(--target-glow, rgba(79, 70, 229, 0.35));
 }
 
 @keyframes pop {
