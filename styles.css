@@ -248,7 +248,6 @@ button:hover {
 
 .target {
   position: absolute;
-  border-radius: 50%;
   display: grid;
   place-items: center;
   font-weight: 700;
@@ -256,21 +255,48 @@ button:hover {
   cursor: pointer;
   transform: scale(0.6);
   animation: pop 0.18s ease-out forwards;
+  background: radial-gradient(circle at top, var(--target-color-start), var(--target-color-end));
+  box-shadow: 0 12px 30px var(--target-glow, rgba(79, 70, 229, 0.35));
 }
 
 .target.normal {
-  background: radial-gradient(circle at top, #818cf8, #4f46e5);
-  box-shadow: 0 12px 30px rgba(79, 70, 229, 0.35);
+  --target-glow: rgba(79, 70, 229, 0.35);
 }
 
 .target.golden {
-  background: radial-gradient(circle at top, #fbbf24, #f97316);
-  box-shadow: 0 12px 30px rgba(249, 115, 22, 0.35);
+  --target-glow: rgba(249, 115, 22, 0.35);
 }
 
 .target.fake {
-  background: radial-gradient(circle at top, #f87171, #ef4444);
-  box-shadow: 0 12px 30px rgba(239, 68, 68, 0.35);
+  --target-glow: rgba(239, 68, 68, 0.35);
+}
+
+.target.color-red {
+  --target-color-start: #fca5a5;
+  --target-color-end: #ef4444;
+}
+
+.target.color-blue {
+  --target-color-start: #93c5fd;
+  --target-color-end: #2563eb;
+}
+
+.target.color-yellow {
+  --target-color-start: #fde68a;
+  --target-color-end: #f59e0b;
+}
+
+.target.shape-circle {
+  border-radius: 50%;
+}
+
+.target.shape-square {
+  border-radius: 8px;
+}
+
+.target.shape-triangle {
+  border-radius: 0;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 
 @keyframes pop {
