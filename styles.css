@@ -127,6 +127,13 @@ button:hover {
   display: flex;
 }
 
+.screen#screenGame {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+}
+
 .card {
   background: var(--bg-glass);
   border: 1px solid var(--border);
@@ -215,6 +222,9 @@ button:hover {
 .play-area {
   position: relative;
   height: clamp(360px, 55vh, 520px);
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
   border-radius: var(--radius);
   border: 2px dashed transparent;
   background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(148, 163, 184, 0.1));
