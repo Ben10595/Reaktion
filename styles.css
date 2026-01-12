@@ -255,7 +255,11 @@ button:hover {
   cursor: pointer;
   transform: scale(0.6);
   animation: pop 0.18s ease-out forwards;
-  background: radial-gradient(circle at top, var(--target-color-start), var(--target-color-end));
+  background: radial-gradient(
+    circle at top,
+    var(--target-color-start, #818cf8),
+    var(--target-color-end, #4f46e5)
+  );
   box-shadow: 0 12px 30px var(--target-glow, rgba(79, 70, 229, 0.35));
 }
 
